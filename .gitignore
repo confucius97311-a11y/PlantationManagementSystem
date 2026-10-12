@@ -1,0 +1,25 @@
+using PlantationManagementSystem.Database;
+using PlantationManagementSystem.Forms;
+
+namespace PlantationManagementSystem;
+
+internal static class Program
+{
+    [STAThread]
+    static void Main()
+    {
+        ApplicationConfiguration.Initialize();
+
+        try
+        {
+            DatabaseHelper.Initialize();
+        }
+        catch (Exception)
+        {
+            MessageBox.Show("The application could not start because the database failed to initialize.", "Startup Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            return;
+        }
+
+        Application.Run(new MainDashboardForm());
+    }
+}
