@@ -1,1285 +1,1191 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Plantation Management System</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1e472e 0%, #2d5a3d 100%);
-            min-height: 100vh;
-            color: #333;
-        }
-
-        .container {
-            display: flex;
-            height: 100vh;
-        }
-
-        .sidebar {
-            width: 280px;
-            background: #1a3d2a;
-            border-right: 1px solid #0f2818;
-            overflow-y: auto;
-            padding: 20px 0;
-        }
-
-        .sidebar-header {
-            padding: 20px;
-            text-align: center;
-            border-bottom: 1px solid #0f2818;
-            margin-bottom: 20px;
-        }
-
-        .sidebar-header h1 {
-            font-size: 18px;
-            color: #4ade80;
-            margin-bottom: 5px;
-        }
-
-        .sidebar-header p {
-            font-size: 12px;
-            color: #9ca3af;
-        }
-
-        .nav-item {
-            padding: 12px 20px;
-            color: #d1d5db;
-            cursor: pointer;
-            border-left: 4px solid transparent;
-            transition: all 0.3s;
-            margin: 0 10px;
-            border-radius: 0 8px 8px 0;
-        }
-
-        .nav-item:hover {
-            background: #0f2818;
-            color: #4ade80;
-            border-left-color: #4ade80;
-        }
-
-        .nav-item.active {
-            background: #2d5a3d;
-            color: #4ade80;
-            border-left-color: #4ade80;
-            font-weight: 600;
-        }
-
-        .main {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .header {
-            background: white;
-            border-bottom: 1px solid #e5e7eb;
-            padding: 20px 30px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        }
-
-        .header h2 {
-            color: #1f2937;
-            font-size: 24px;
-        }
-
-        .content {
-            flex: 1;
-            overflow-y: auto;
-            padding: 30px;
-            background: #f9fafb;
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-            animation: fadeIn 0.3s ease-in;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-            to {
-                opacity: 1;
-            }
-        }
-
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .stat-card {
-            background: white;
-            border-radius: 12px;
-            padding: 25px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            border-left: 4px solid #4ade80;
-            transition: transform 0.3s, box-shadow 0.3s;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
-        }
-
-        .stat-label {
-            color: #6b7280;
-            font-size: 12px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 10px;
-        }
-
-        .stat-value {
-            font-size: 36px;
-            font-weight: bold;
-            color: #1f2937;
-        }
-
-        .stat-currency {
-            font-size: 28px;
-            color: #4ade80;
-        }
-
-        .form-section {
-            background: white;
-            border-radius: 12px;
-            padding: 30px;
-            margin-bottom: 30px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        }
-
-        .form-title {
-            font-size: 18px;
-            font-weight: 600;
-            color: #1f2937;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid #e5e7eb;
-        }
-
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 20px;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .form-group label {
-            font-size: 13px;
-            font-weight: 600;
-            color: #374151;
-            margin-bottom: 8px;
-        }
-
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            padding: 10px 12px;
-            border: 1px solid #d1d5db;
-            border-radius: 6px;
-            font-size: 13px;
-            font-family: inherit;
-            transition: border-color 0.3s;
-        }
-
-        .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus {
-            outline: none;
-            border-color: #4ade80;
-            box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.1);
-        }
-
-        .form-group textarea {
-            resize: vertical;
-            min-height: 80px;
-        }
-
-        .button-group {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-        }
-
-        button {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 6px;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .btn-primary {
-            background: #4ade80;
-            color: white;
-            flex: 1;
-        }
-
-        .btn-primary:hover {
-            background: #22c55e;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(74, 222, 128, 0.3);
-        }
-
-        .btn-danger {
-            background: #ef4444;
-            color: white;
-        }
-
-        .btn-danger:hover {
-            background: #dc2626;
-        }
-
-        .btn-secondary {
-            background: #e5e7eb;
-            color: #374151;
-        }
-
-        .btn-secondary:hover {
-            background: #d1d5db;
-        }
-
-        .table-section {
-            background: white;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        }
-
-        .table-header {
-            background: #f3f4f6;
-            padding: 20px;
-            border-bottom: 1px solid #e5e7eb;
-        }
-
-        .table-header h3 {
-            color: #1f2937;
-            font-size: 16px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        thead {
-            background: #f9fafb;
-        }
-
-        th {
-            padding: 12px 20px;
-            text-align: left;
-            font-size: 12px;
-            font-weight: 600;
-            color: #6b7280;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            border-bottom: 1px solid #e5e7eb;
-        }
-
-        td {
-            padding: 15px 20px;
-            border-bottom: 1px solid #f3f4f6;
-            color: #374151;
-            font-size: 13px;
-        }
-
-        tbody tr {
-            transition: background-color 0.2s;
-        }
-
-        tbody tr:hover {
-            background-color: #fafafa;
-        }
-
-        tbody tr.selected {
-            background-color: #f0fdf4;
-        }
-
-        .badge {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: 600;
-        }
-
-        .badge-success {
-            background: #d1fae5;
-            color: #065f46;
-        }
-
-        .badge-warning {
-            background: #fef3c7;
-            color: #92400e;
-        }
-
-        .badge-info {
-            background: #dbeafe;
-            color: #0c4a6e;
-        }
-
-        .badge-danger {
-            background: #fee2e2;
-            color: #7f1d1d;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 40px 20px;
-            color: #9ca3af;
-        }
-
-        .empty-state svg {
-            width: 100px;
-            height: 100px;
-            margin-bottom: 20px;
-            opacity: 0.5;
-        }
-
-        .reports-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
-            gap: 30px;
-        }
-
-        .report-section h3 {
-            margin-bottom: 15px;
-            color: #1f2937;
-            font-size: 14px;
-            font-weight: 600;
-        }
-
-        .scrollbar-thin::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-
-        .scrollbar-thin::-webkit-scrollbar-track {
-            background: #f3f4f6;
-        }
-
-        .scrollbar-thin::-webkit-scrollbar-thumb {
-            background: #d1d5db;
-            border-radius: 4px;
-        }
-
-        .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-            background: #9ca3af;
-        }
-
-        .message {
-            padding: 15px 20px;
-            border-radius: 6px;
-            margin-bottom: 20px;
-            font-size: 13px;
-        }
-
-        .message.success {
-            background: #d1fae5;
-            color: #065f46;
-            border: 1px solid #6ee7b7;
-        }
-
-        .message.error {
-            background: #fee2e2;
-            color: #7f1d1d;
-            border: 1px solid #fca5a5;
-        }
-
-        .message.warning {
-            background: #fef3c7;
-            color: #92400e;
-            border: 1px solid #fde68a;
-        }
-
-        @media (max-width: 768px) {
-            .container {
-                flex-direction: column;
-            }
-
-            .sidebar {
-                width: 100%;
-                display: flex;
-                overflow-x: auto;
-                height: auto;
-                padding: 0;
-            }
-
-            .sidebar-header {
-                display: none;
-            }
-
-            .nav-item {
-                margin: 0;
-                border-radius: 0;
-                border: none;
-                border-bottom: 2px solid transparent;
-                white-space: nowrap;
-            }
-
-            .nav-item.active {
-                border-bottom-color: #4ade80;
-                border-left: none;
-            }
-
-            .dashboard-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .reports-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Plantation Management System</title>
+  <style>
+    :root {
+      --bg: #f6f8f4;
+      --panel: rgba(255, 255, 255, 0.85);
+      --panel-strong: #ffffff;
+      --sidebar: #122b1f;
+      --sidebar-2: #193d2f;
+      --text: #111827;
+      --muted: #6b7280;
+      --line: #e5e7eb;
+      --green: #38b000;
+      --green-dark: #1d7a37;
+      --green-soft: #dff7e8;
+      --warning: #f59e0b;
+      --warning-soft: #fff3d6;
+      --danger: #ef4444;
+      --danger-soft: #fee2e2;
+      --shadow: 0 12px 30px rgba(18, 43, 31, 0.08);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(56, 176, 0, 0.16), transparent 22%),
+        linear-gradient(180deg, #eef6ef 0%, var(--bg) 100%);
+      color: var(--text);
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .app {
+      width: min(1480px, 100%);
+      min-height: calc(100vh - 40px);
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      background: rgba(255,255,255,0.4);
+      border: 1px solid rgba(255,255,255,0.6);
+      border-radius: 28px;
+      backdrop-filter: blur(14px);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .sidebar {
+      background: linear-gradient(180deg, var(--sidebar) 0%, var(--sidebar-2) 100%);
+      color: white;
+      padding: 26px 18px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 8px 18px;
+      border-bottom: 1px solid rgba(255,255,255,0.12);
+      margin-bottom: 16px;
+    }
+
+    .brand-badge {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, #62d96a, #179b4c);
+      box-shadow: 0 8px 22px rgba(56, 176, 0, 0.35);
+      font-size: 22px;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 1.1rem;
+      letter-spacing: 0.02em;
+    }
+
+    .brand small {
+      display: block;
+      color: rgba(255,255,255,0.6);
+      margin-top: 2px;
+    }
+
+    .nav {
+      margin-top: 18px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .nav-btn {
+      border: 0;
+      background: transparent;
+      color: rgba(255,255,255,0.8);
+      text-align: left;
+      padding: 12px 14px;
+      border-radius: 12px;
+      font-size: 0.98rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+
+    .nav-btn:hover,
+    .nav-btn.active {
+      background: rgba(255,255,255,0.08);
+      color: white;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06);
+    }
+
+    .main {
+      background: rgba(255,255,255,0.35);
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .topbar {
+      background: rgba(255,255,255,0.55);
+      padding: 18px 28px 14px;
+      border-bottom: 1px solid rgba(17, 24, 39, 0.06);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .topbar-title {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .eyebrow {
+      font-size: 11px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.11em;
+      font-weight: 700;
+    }
+
+    .topbar-title h2 {
+      margin: 4px 0 0;
+      font-size: clamp(1.3rem, 2vw, 2rem);
+      letter-spacing: -0.04em;
+    }
+
+    .topbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .pill {
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.8);
+      color: var(--text);
+      border-radius: 999px;
+      padding: 9px 14px;
+      font-size: 0.82rem;
+      font-weight: 600;
+    }
+
+    .primary-btn {
+      background: linear-gradient(135deg, var(--green), #1dbf5a);
+      color: white;
+      border: 0;
+      border-radius: 12px;
+      padding: 10px 16px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 12px 24px rgba(56, 176, 0, 0.18);
+    }
+
+    .content {
+      flex: 1;
+      overflow: auto;
+      padding: 28px;
+    }
+
+    .tab {
+      display: none;
+      animation: fadeIn 0.25s ease;
+    }
+
+    .tab.active { display: block; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+
+    .stat-card {
+      background: var(--panel-strong);
+      border: 1px solid rgba(17,24,39,0.04);
+      border-radius: var(--radius);
+      padding: 22px 20px;
+      box-shadow: 0 6px 20px rgba(17,24,39,0.04);
+    }
+
+    .stat-label {
+      color: var(--muted);
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 12px;
+    }
+
+    .stat-value {
+      font-size: clamp(2rem, 3vw, 2.5rem);
+      font-weight: 800;
+      letter-spacing: -0.06em;
+      color: var(--text);
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+    }
+
+    .stat-value.green {
+      color: var(--green-dark);
+    }
+
+    .card {
+      background: var(--panel-strong);
+      border: 1px solid rgba(17,24,39,0.04);
+      border-radius: var(--radius);
+      box-shadow: 0 8px 22px rgba(17,24,39,0.04);
+      padding: 22px;
+    }
+
+    .section-title {
+      font-size: 1.02rem;
+      font-weight: 800;
+      margin: 0 0 18px;
+      letter-spacing: -0.02em;
+    }
+
+    .welcome {
+      display: grid;
+      gap: 14px;
+      color: var(--muted);
+      line-height: 1.7;
+      font-size: 0.98rem;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .field {
+      display: grid;
+      gap: 8px;
+    }
+
+    .field label {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--muted);
+      letter-spacing: 0.02em;
+    }
+
+    .field input,
+    .field select,
+    .field textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 12px;
+      padding: 11px 12px;
+      font: inherit;
+      color: var(--text);
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .field input:focus,
+    .field select:focus,
+    .field textarea:focus {
+      outline: none;
+      border-color: rgba(56,176,0,0.6);
+      box-shadow: 0 0 0 3px rgba(56,176,0,0.09);
+    }
+
+    textarea {
+      min-height: 90px;
+      resize: vertical;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .btn {
+      border: 0;
+      border-radius: 12px;
+      padding: 11px 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.15s ease, filter 0.15s ease;
+    }
+
+    .btn:hover { transform: translateY(-1px); }
+    .btn:active { transform: translateY(0); }
+
+    .btn-success {
+      background: linear-gradient(135deg, var(--green), #1dbf5a);
+      color: white;
+    }
+
+    .btn-danger {
+      background: var(--danger-soft);
+      color: var(--danger);
+    }
+
+    .btn-muted {
+      background: #eef2f7;
+      color: var(--text);
+    }
+
+    .table-wrap {
+      margin-top: 20px;
+      overflow: auto;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: #fff;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 720px;
+    }
+
+    thead th {
+      text-align: left;
+      padding: 13px 16px;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      background: #fafafa;
+      border-bottom: 1px solid var(--line);
+    }
+
+    tbody td {
+      padding: 14px 16px;
+      border-bottom: 1px solid #f0f2f4;
+      font-size: 0.92rem;
+      color: var(--text);
+      vertical-align: middle;
+    }
+
+    tbody tr:hover {
+      background: rgba(56,176,0,0.02);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+    }
+
+    .badge.green { background: var(--green-soft); color: var(--green-dark); }
+    .badge.yellow { background: var(--warning-soft); color: #9a6700; }
+    .badge.blue { background: #e0f2fe; color: #0f766e; }
+    .badge.red { background: var(--danger-soft); color: var(--danger); }
+
+    .empty {
+      text-align: center;
+      color: var(--muted);
+      padding: 32px 20px;
+      font-size: 0.9rem;
+    }
+
+    .message {
+      min-height: 20px;
+      margin-bottom: 16px;
+    }
+
+    .message-box {
+      padding: 12px 14px;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      display: none;
+    }
+
+    .message-box.success {
+      display: block;
+      background: var(--green-soft);
+      color: var(--green-dark);
+      border: 1px solid rgba(56,176,0,0.18);
+    }
+
+    .message-box.error {
+      display: block;
+      background: var(--danger-soft);
+      color: var(--danger);
+      border: 1px solid rgba(239,68,68,0.18);
+    }
+
+    .reports-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+    }
+
+    @media (max-width: 980px) {
+      .app {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        padding-bottom: 12px;
+      }
+
+      .nav {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <!-- Sidebar -->
-        <div class="sidebar scrollbar-thin">
-            <div class="sidebar-header">
-                <h1>🌱 Plantation</h1>
-                <p>Management System</p>
-            </div>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-badge">🌱</div>
+        <div>
+          <h1>Plantation</h1>
+          <small>Management System</small>
+        </div>
+      </div>
 
-            <div class="nav-item active" onclick="switchTab('dashboard')">📊 Dashboard</div>
-            <div class="nav-item" onclick="switchTab('plants')">🌿 Plants</div>
-            <div class="nav-item" onclick="switchTab('workers')">👷 Workers</div>
-            <div class="nav-item" onclick="switchTab('activities')">🔧 Activities</div>
-            <div class="nav-item" onclick="switchTab('expenses')">💰 Expenses</div>
-            <div class="nav-item" onclick="switchTab('reports')">📋 Reports</div>
+      <div class="nav">
+        <button class="nav-btn active" data-tab="dashboard">📊 Dashboard</button>
+        <button class="nav-btn" data-tab="plants">🌿 Plants</button>
+        <button class="nav-btn" data-tab="workers">👷 Workers</button>
+        <button class="nav-btn" data-tab="activities">🔧 Activities</button>
+        <button class="nav-btn" data-tab="expenses">💰 Expenses</button>
+        <button class="nav-btn" data-tab="reports">📋 Reports</button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="topbar-title">
+          <span class="eyebrow">Overview</span>
+          <h2 id="pageTitle">Dashboard</h2>
         </div>
 
-        <!-- Main Content -->
-        <div class="main">
-            <div class="header">
-                <h2 id="page-title">Dashboard</h2>
-            </div>
-
-            <div class="content scrollbar-thin">
-                <!-- Dashboard Tab -->
-                <div id="dashboard" class="tab-content active">
-                    <div class="dashboard-grid">
-                        <div class="stat-card">
-                            <div class="stat-label">Total Plants</div>
-                            <div class="stat-value" id="total-plants">0</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-label">Total Workers</div>
-                            <div class="stat-value" id="total-workers">0</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-label">Plantation Areas</div>
-                            <div class="stat-value" id="total-areas">0</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-label">Total Expenses</div>
-                            <div class="stat-value stat-currency" id="total-expenses">$0.00</div>
-                        </div>
-                    </div>
-
-                    <div class="form-section">
-                        <div class="form-title">Welcome to Plantation Management System</div>
-                        <p style="color: #6b7280; line-height: 1.6;">
-                            Manage your plantation efficiently with this comprehensive system. Track your plants, workers, activities, and expenses all in one place.
-                        </p>
-                        <p style="color: #6b7280; line-height: 1.6; margin-top: 15px;">
-                            <strong>Features:</strong> Plant management • Worker tracking • Activity scheduling • Expense logging • Real-time reports
-                        </p>
-                    </div>
-                </div>
-
-                <!-- Plants Tab -->
-                <div id="plants" class="tab-content">
-                    <div class="form-section">
-                        <div class="form-title">Add or Update Plant</div>
-                        <div id="plant-message"></div>
-                        <div class="form-grid">
-                            <div class="form-group">
-                                <label>Plant Name</label>
-                                <input type="text" id="plant-name" placeholder="e.g., Mango">
-                            </div>
-                            <div class="form-group">
-                                <label>Plant Type</label>
-                                <input type="text" id="plant-type" placeholder="e.g., Fruit Tree">
-                            </div>
-                            <div class="form-group">
-                                <label>Quantity</label>
-                                <input type="number" id="plant-quantity" placeholder="0" min="0">
-                            </div>
-                            <div class="form-group">
-                                <label>Planting Date</label>
-                                <input type="date" id="plant-date">
-                            </div>
-                            <div class="form-group">
-                                <label>Growth Status</label>
-                                <select id="plant-status">
-                                    <option>Seedling</option>
-                                    <option>Growing</option>
-                                    <option>Healthy</option>
-                                    <option>Mature</option>
-                                    <option>Harvest Ready</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>Area Name</label>
-                                <input type="text" id="plant-area" placeholder="e.g., Field A">
-                            </div>
-                        </div>
-                        <div class="button-group">
-                            <button class="btn-primary" onclick="addPlant()">Add Plant</button>
-                            <button class="btn-secondary" onclick="clearPlantForm()">Clear</button>
-                        </div>
-                    </div>
-
-                    <div class="table-section">
-                        <div class="table-header">
-                            <h3>Plant Records</h3>
-                        </div>
-                        <table id="plants-table">
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Name</th>
-                                    <th>Type</th>
-                                    <th>Quantity</th>
-                                    <th>Planting Date</th>
-                                    <th>Status</th>
-                                    <th>Area</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="plants-body">
-                                <tr>
-                                    <td colspan="8" class="empty-state">No plants added yet. Add your first plant above!</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- Workers Tab -->
-                <div id="workers" class="tab-content">
-                    <div class="form-section">
-                        <div class="form-title">Add or Update Worker</div>
-                        <div id="worker-message"></div>
-                        <div class="form-grid">
-                            <div class="form-group">
-                                <label>Worker Name</label>
-                                <input type="text" id="worker-name" placeholder="Enter worker name">
-                            </div>
-                            <div class="form-group">
-                                <label>Contact Number</label>
-                                <input type="tel" id="worker-contact" placeholder="Phone number">
-                            </div>
-                            <div class="form-group">
-                                <label>Job Role</label>
-                                <input type="text" id="worker-role" placeholder="e.g., Supervisor, Laborer">
-                            </div>
-                            <div class="form-group">
-                                <label>Salary</label>
-                                <input type="number" id="worker-salary" placeholder="0.00" min="0" step="0.01">
-                            </div>
-                        </div>
-                        <div class="button-group">
-                            <button class="btn-primary" onclick="addWorker()">Add Worker</button>
-                            <button class="btn-secondary" onclick="clearWorkerForm()">Clear</button>
-                        </div>
-                    </div>
-
-                    <div class="table-section">
-                        <div class="table-header">
-                            <h3>Worker Records</h3>
-                        </div>
-                        <table id="workers-table">
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Name</th>
-                                    <th>Contact</th>
-                                    <th>Job Role</th>
-                                    <th>Salary</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="workers-body">
-                                <tr>
-                                    <td colspan="6" class="empty-state">No workers added yet. Add your first worker above!</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- Activities Tab -->
-                <div id="activities" class="tab-content">
-                    <div class="form-section">
-                        <div class="form-title">Record Plantation Activity</div>
-                        <div id="activity-message"></div>
-                        <div class="form-grid">
-                            <div class="form-group">
-                                <label>Activity Date</label>
-                                <input type="date" id="activity-date">
-                            </div>
-                            <div class="form-group">
-                                <label>Assigned Worker</label>
-                                <select id="activity-worker">
-                                    <option value="">Select a worker</option>
-                                </select>
-                            </div>
-                            <div class="form-group" style="grid-column: 1 / -1;">
-                                <label>Activity Description</label>
-                                <textarea id="activity-description" placeholder="e.g., Watering, Fertilizing, Pruning, Harvesting..."></textarea>
-                            </div>
-                        </div>
-                        <div class="button-group">
-                            <button class="btn-primary" onclick="addActivity()">Save Activity</button>
-                            <button class="btn-secondary" onclick="clearActivityForm()">Clear</button>
-                        </div>
-                    </div>
-
-                    <div class="table-section">
-                        <div class="table-header">
-                            <h3>Activity Records</h3>
-                        </div>
-                        <table id="activities-table">
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Date</th>
-                                    <th>Description</th>
-                                    <th>Assigned Worker</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="activities-body">
-                                <tr>
-                                    <td colspan="5" class="empty-state">No activities recorded yet. Add your first activity above!</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- Expenses Tab -->
-                <div id="expenses" class="tab-content">
-                    <div class="form-section">
-                        <div class="form-title">Record Expense</div>
-                        <div id="expense-message"></div>
-                        <div class="form-grid">
-                            <div class="form-group">
-                                <label>Expense Date</label>
-                                <input type="date" id="expense-date">
-                            </div>
-                            <div class="form-group">
-                                <label>Category</label>
-                                <select id="expense-category">
-                                    <option>Seeds</option>
-                                    <option>Fertilizer</option>
-                                    <option>Equipment</option>
-                                    <option>Wages</option>
-                                    <option>Water</option>
-                                    <option>Other</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>Amount</label>
-                                <input type="number" id="expense-amount" placeholder="0.00" min="0" step="0.01">
-                            </div>
-                            <div class="form-group" style="grid-column: 1 / -1;">
-                                <label>Description</label>
-                                <textarea id="expense-description" placeholder="Details about this expense..."></textarea>
-                            </div>
-                        </div>
-                        <div class="button-group">
-                            <button class="btn-primary" onclick="addExpense()">Save Expense</button>
-                            <button class="btn-secondary" onclick="clearExpenseForm()">Clear</button>
-                        </div>
-                    </div>
-
-                    <div class="table-section">
-                        <div class="table-header">
-                            <h3>Expense Records</h3>
-                        </div>
-                        <table id="expenses-table">
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Date</th>
-                                    <th>Category</th>
-                                    <th>Amount</th>
-                                    <th>Description</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="expenses-body">
-                                <tr>
-                                    <td colspan="6" class="empty-state">No expenses recorded yet. Add your first expense above!</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- Reports Tab -->
-                <div id="reports" class="tab-content">
-                    <div class="reports-grid">
-                        <div class="report-section">
-                            <h3>Plants Report</h3>
-                            <div class="table-section">
-                                <table id="report-plants-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Name</th>
-                                            <th>Type</th>
-                                            <th>Quantity</th>
-                                            <th>Status</th>
-                                            <th>Area</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="report-plants-body">
-                                        <tr>
-                                            <td colspan="5" class="empty-state" style="padding: 20px;">No data</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-
-                        <div class="report-section">
-                            <h3>Workers Report</h3>
-                            <div class="table-section">
-                                <table id="report-workers-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Name</th>
-                                            <th>Contact</th>
-                                            <th>Role</th>
-                                            <th>Salary</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="report-workers-body">
-                                        <tr>
-                                            <td colspan="4" class="empty-state" style="padding: 20px;">No data</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-
-                        <div class="report-section">
-                            <h3>Activities Report</h3>
-                            <div class="table-section">
-                                <table id="report-activities-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Date</th>
-                                            <th>Description</th>
-                                            <th>Worker</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="report-activities-body">
-                                        <tr>
-                                            <td colspan="3" class="empty-state" style="padding: 20px;">No data</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-
-                        <div class="report-section">
-                            <h3>Expenses Report</h3>
-                            <div class="table-section">
-                                <table id="report-expenses-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Date</th>
-                                            <th>Category</th>
-                                            <th>Amount</th>
-                                            <th>Description</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="report-expenses-body">
-                                        <tr>
-                                            <td colspan="4" class="empty-state\" style="padding: 20px;">No data</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <div class="topbar-actions">
+          <div class="pill">Live Summary</div>
+          <button class="primary-btn" type="button">+ New Record</button>
         </div>
-    </div>
+      </header>
 
-    <script>
-        // Data storage
-        const db = {
-            plants: [],
-            workers: [],
-            activities: [],
-            expenses: [],
-            nextPlantId: 1,
-            nextWorkerId: 1,
-            nextActivityId: 1,
-            nextExpenseId: 1
-        };
+      <div class="content">
+        <section class="tab active" id="dashboard">
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-label">Total Plants</div>
+              <div class="stat-value green" id="totalPlants">0</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Total Workers</div>
+              <div class="stat-value" id="totalWorkers">0</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Plantation Areas</div>
+              <div class="stat-value" id="totalAreas">0</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Total Expenses</div>
+              <div class="stat-value green" id="totalExpenses">$0.00</div>
+            </div>
+          </div>
 
-        // Load data from localStorage
-        function loadData() {
-            const saved = localStorage.getItem('plantationDB');
-            if (saved) {
-                const data = JSON.parse(saved);
-                Object.assign(db, data);
-            }
-        }
+          <div class="card">
+            <h3 class="section-title">Welcome to your plantation workspace</h3>
+            <div class="welcome">
+              <div>Track crop growth, manage field workers, schedule plantation activities, and review all your expenses in one simple dashboard.</div>
+              <div>Use the navigation menu to manage plants, workers, agricultural tasks, and financial records efficiently.</div>
+            </div>
+          </div>
+        </section>
 
-        // Save data to localStorage
-        function saveData() {
-            localStorage.setItem('plantationDB', JSON.stringify(db));
-        }
+        <section class="tab" id="plants">
+          <div class="card">
+            <h3 class="section-title">Plant management</h3>
+            <div id="plantMessage" class="message"></div>
+            <div class="two-col">
+              <div class="field">
+                <label>Plant Name</label>
+                <input type="text" id="plantName" placeholder="e.g. Mango" />
+              </div>
+              <div class="field">
+                <label>Plant Type</label>
+                <input type="text" id="plantType" placeholder="e.g. Fruit Tree" />
+              </div>
+              <div class="field">
+                <label>Quantity</label>
+                <input type="number" id="plantQuantity" min="0" value="0" />
+              </div>
+              <div class="field">
+                <label>Planting Date</label>
+                <input type="date" id="plantDate" />
+              </div>
+              <div class="field">
+                <label>Growth Status</label>
+                <select id="plantStatus">
+                  <option>Seedling</option>
+                  <option>Growing</option>
+                  <option>Healthy</option>
+                  <option>Mature</option>
+                  <option>Harvest Ready</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>Area Name</label>
+                <input type="text" id="plantArea" placeholder="e.g. North Block" />
+              </div>
+            </div>
+            <div class="actions">
+              <button class="btn btn-success" type="button" onclick="addPlant()">Add Plant</button>
+              <button class="btn btn-muted" type="button" onclick="clearPlantForm()">Clear</button>
+            </div>
+          </div>
 
-        // Switch tabs
-        function switchTab(tabName) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-            document.getElementById(tabName).classList.add('active');
-
-            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-            event.target.classList.add('active');
-
-            const titles = {
-                dashboard: 'Dashboard',
-                plants: 'Plants',
-                workers: 'Workers',
-                activities: 'Activities',
-                expenses: 'Expenses',
-                reports: 'Reports'
-            };
-            document.getElementById('page-title').textContent = titles[tabName];
-
-            if (tabName === 'reports') {
-                loadReports();
-            }
-        }
-
-        // Plant functions
-        function addPlant() {
-            const name = document.getElementById('plant-name').value.trim();
-            const type = document.getElementById('plant-type').value.trim();
-            const quantity = parseInt(document.getElementById('plant-quantity').value) || 0;
-            const date = document.getElementById('plant-date').value;
-            const status = document.getElementById('plant-status').value;
-            const area = document.getElementById('plant-area').value.trim();
-
-            if (!name || !type) {
-                showMessage('plant-message', 'Plant name and type are required!', 'error');
-                return;
-            }
-
-            const plant = {
-                id: db.nextPlantId++,
-                name,
-                type,
-                quantity,
-                date,
-                status,
-                area
-            };
-
-            db.plants.push(plant);
-            saveData();
-            clearPlantForm();
-            loadPlants();
-            updateDashboard();
-            showMessage('plant-message', 'Plant added successfully!', 'success');
-        }
-
-        function clearPlantForm() {
-            document.getElementById('plant-name').value = '';
-            document.getElementById('plant-type').value = '';
-            document.getElementById('plant-quantity').value = '';
-            document.getElementById('plant-date').value = new Date().toISOString().split('T')[0];
-            document.getElementById('plant-status').value = 'Growing';
-            document.getElementById('plant-area').value = '';
-            document.getElementById('plant-message').innerHTML = '';
-        }
-
-        function loadPlants() {
-            const tbody = document.getElementById('plants-body');
-            if (db.plants.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="8" class="empty-state">No plants added yet. Add your first plant above!</td></tr>';
-                return;
-            }
-
-            tbody.innerHTML = db.plants.map(plant => `
+          <div class="table-wrap">
+            <table>
+              <thead>
                 <tr>
-                    <td>${plant.id}</td>
-                    <td>${plant.name}</td>
-                    <td>${plant.type}</td>
-                    <td>${plant.quantity}</td>
-                    <td>${plant.date}</td>
-                    <td><span class="badge badge-info">${plant.status}</span></td>
-                    <td>${plant.area}</td>
-                    <td>
-                        <button class="btn-danger" onclick="deletePlant(${plant.id})" style="padding: 5px 10px; font-size: 12px;">Delete</button>
-                    </td>
+                  <th>ID</th>
+                  <th>Name</th>
+                  <th>Type</th>
+                  <th>Quantity</th>
+                  <th>Planting Date</th>
+                  <th>Status</th>
+                  <th>Area</th>
+                  <th>Action</th>
                 </tr>
-            `).join('');
-        }
+              </thead>
+              <tbody id="plantsTableBody"></tbody>
+            </table>
+          </div>
+        </section>
 
-        function deletePlant(id) {
-            if (confirm('Are you sure you want to delete this plant?')) {
-                db.plants = db.plants.filter(p => p.id !== id);
-                saveData();
-                loadPlants();
-                updateDashboard();
-                showMessage('plant-message', 'Plant deleted successfully!', 'success');
-            }
-        }
+        <section class="tab" id="workers">
+          <div class="card">
+            <h3 class="section-title">Worker management</h3>
+            <div id="workerMessage" class="message"></div>
+            <div class="two-col">
+              <div class="field">
+                <label>Worker Name</label>
+                <input type="text" id="workerName" placeholder="e.g. James" />
+              </div>
+              <div class="field">
+                <label>Contact Number</label>
+                <input type="tel" id="workerContact" placeholder="e.g. +254..." />
+              </div>
+              <div class="field">
+                <label>Job Role</label>
+                <input type="text" id="workerRole" placeholder="e.g. Supervisor" />
+              </div>
+              <div class="field">
+                <label>Salary</label>
+                <input type="number" id="workerSalary" min="0" step="0.01" value="0" />
+              </div>
+            </div>
+            <div class="actions">
+              <button class="btn btn-success" type="button" onclick="addWorker()">Add Worker</button>
+              <button class="btn btn-muted" type="button" onclick="clearWorkerForm()">Clear</button>
+            </div>
+          </div>
 
-        // Worker functions
-        function addWorker() {
-            const name = document.getElementById('worker-name').value.trim();
-            const contact = document.getElementById('worker-contact').value.trim();
-            const role = document.getElementById('worker-role').value.trim();
-            const salary = parseFloat(document.getElementById('worker-salary').value) || 0;
-
-            if (!name || !contact) {
-                showMessage('worker-message', 'Worker name and contact are required!', 'error');
-                return;
-            }
-
-            const worker = {
-                id: db.nextWorkerId++,
-                name,
-                contact,
-                role,
-                salary
-            };
-
-            db.workers.push(worker);
-            saveData();
-            clearWorkerForm();
-            loadWorkers();
-            loadActivityWorkerCombo();
-            updateDashboard();
-            showMessage('worker-message', 'Worker added successfully!', 'success');
-        }
-
-        function clearWorkerForm() {
-            document.getElementById('worker-name').value = '';
-            document.getElementById('worker-contact').value = '';
-            document.getElementById('worker-role').value = '';
-            document.getElementById('worker-salary').value = '';
-            document.getElementById('worker-message').innerHTML = '';
-        }
-
-        function loadWorkers() {
-            const tbody = document.getElementById('workers-body');
-            if (db.workers.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" class="empty-state">No workers added yet. Add your first worker above!</td></tr>';
-                return;
-            }
-
-            tbody.innerHTML = db.workers.map(worker => `
+          <div class="table-wrap">
+            <table>
+              <thead>
                 <tr>
-                    <td>${worker.id}</td>
-                    <td>${worker.name}</td>
-                    <td>${worker.contact}</td>
-                    <td>${worker.role}</td>
-                    <td>$${worker.salary.toFixed(2)}</td>
-                    <td>
-                        <button class="btn-danger" onclick="deleteWorker(${worker.id})" style="padding: 5px 10px; font-size: 12px;">Delete</button>
-                    </td>
+                  <th>ID</th>
+                  <th>Name</th>
+                  <th>Contact</th>
+                  <th>Role</th>
+                  <th>Salary</th>
+                  <th>Action</th>
                 </tr>
-            `).join('');
-        }
+              </thead>
+              <tbody id="workersTableBody"></tbody>
+            </table>
+          </div>
+        </section>
 
-        function deleteWorker(id) {
-            if (confirm('Are you sure you want to delete this worker?')) {
-                db.workers = db.workers.filter(w => w.id !== id);
-                saveData();
-                loadWorkers();
-                loadActivityWorkerCombo();
-                updateDashboard();
-                showMessage('worker-message', 'Worker deleted successfully!', 'success');
-            }
-        }
+        <section class="tab" id="activities">
+          <div class="card">
+            <h3 class="section-title">Plantation activities</h3>
+            <div id="activityMessage" class="message"></div>
+            <div class="two-col">
+              <div class="field">
+                <label>Activity Date</label>
+                <input type="date" id="activityDate" />
+              </div>
+              <div class="field">
+                <label>Assigned Worker</label>
+                <select id="activityWorker"></select>
+              </div>
+              <div class="field" style="grid-column: 1 / -1;">
+                <label>Description</label>
+                <textarea id="activityDescription" placeholder="Describe the task such as watering, pruning, fertilizing, or harvesting..."></textarea>
+              </div>
+            </div>
+            <div class="actions">
+              <button class="btn btn-success" type="button" onclick="addActivity()">Save Activity</button>
+              <button class="btn btn-muted" type="button" onclick="clearActivityForm()">Clear</button>
+            </div>
+          </div>
 
-        // Activity functions
-        function addActivity() {
-            const date = document.getElementById('activity-date').value;
-            const workerId = parseInt(document.getElementById('activity-worker').value);
-            const description = document.getElementById('activity-description').value.trim();
-
-            if (!workerId || !description) {
-                showMessage('activity-message', 'Please select a worker and enter a description!', 'error');
-                return;
-            }
-
-            const worker = db.workers.find(w => w.id === workerId);
-
-            const activity = {
-                id: db.nextActivityId++,
-                date,
-                workerId,
-                workerName: worker.name,
-                description
-            };
-
-            db.activities.push(activity);
-            saveData();
-            clearActivityForm();
-            loadActivities();
-            showMessage('activity-message', 'Activity recorded successfully!', 'success');
-        }
-
-        function clearActivityForm() {
-            document.getElementById('activity-date').value = new Date().toISOString().split('T')[0];
-            document.getElementById('activity-worker').value = '';
-            document.getElementById('activity-description').value = '';
-            document.getElementById('activity-message').innerHTML = '';
-        }
-
-        function loadActivityWorkerCombo() {
-            const select = document.getElementById('activity-worker');
-            select.innerHTML = '<option value="">Select a worker</option>';
-            db.workers.forEach(worker => {
-                const option = document.createElement('option');
-                option.value = worker.id;
-                option.textContent = worker.name;
-                select.appendChild(option);
-            });
-        }
-
-        function loadActivities() {
-            const tbody = document.getElementById('activities-body');
-            if (db.activities.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" class="empty-state">No activities recorded yet. Add your first activity above!</td></tr>';
-                return;
-            }
-
-            tbody.innerHTML = db.activities.map(activity => `
+          <div class="table-wrap">
+            <table>
+              <thead>
                 <tr>
-                    <td>${activity.id}</td>
-                    <td>${activity.date}</td>
-                    <td>${activity.description}</td>
-                    <td>${activity.workerName}</td>
-                    <td>
-                        <button class="btn-danger" onclick="deleteActivity(${activity.id})" style="padding: 5px 10px; font-size: 12px;">Delete</button>
-                    </td>
+                  <th>ID</th>
+                  <th>Date</th>
+                  <th>Description</th>
+                  <th>Worker</th>
+                  <th>Action</th>
                 </tr>
-            `).join('');
-        }
+              </thead>
+              <tbody id="activitiesTableBody"></tbody>
+            </table>
+          </div>
+        </section>
 
-        function deleteActivity(id) {
-            if (confirm('Are you sure you want to delete this activity?')) {
-                db.activities = db.activities.filter(a => a.id !== id);
-                saveData();
-                loadActivities();
-                showMessage('activity-message', 'Activity deleted successfully!', 'success');
-            }
-        }
+        <section class="tab" id="expenses">
+          <div class="card">
+            <h3 class="section-title">Expense recording</h3>
+            <div id="expenseMessage" class="message"></div>
+            <div class="two-col">
+              <div class="field">
+                <label>Expense Date</label>
+                <input type="date" id="expenseDate" />
+              </div>
+              <div class="field">
+                <label>Category</label>
+                <select id="expenseCategory">
+                  <option>Seeds</option>
+                  <option>Fertilizer</option>
+                  <option>Equipment</option>
+                  <option>Wages</option>
+                  <option>Water</option>
+                  <option>Other</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>Amount</label>
+                <input type="number" id="expenseAmount" min="0" step="0.01" value="0" />
+              </div>
+              <div class="field" style="grid-column: 1 / -1;">
+                <label>Description</label>
+                <textarea id="expenseDescription" placeholder="Describe the purchase or payment..."></textarea>
+              </div>
+            </div>
+            <div class="actions">
+              <button class="btn btn-success" type="button" onclick="addExpense()">Save Expense</button>
+              <button class="btn btn-muted" type="button" onclick="clearExpenseForm()">Clear</button>
+            </div>
+          </div>
 
-        // Expense functions
-        function addExpense() {
-            const date = document.getElementById('expense-date').value;
-            const category = document.getElementById('expense-category').value;
-            const amount = parseFloat(document.getElementById('expense-amount').value) || 0;
-            const description = document.getElementById('expense-description').value.trim();
-
-            if (!category || amount === 0) {
-                showMessage('expense-message', 'Category and amount are required!', 'error');
-                return;
-            }
-
-            const expense = {
-                id: db.nextExpenseId++,
-                date,
-                category,
-                amount,
-                description
-            };
-
-            db.expenses.push(expense);
-            saveData();
-            clearExpenseForm();
-            loadExpenses();
-            updateDashboard();
-            showMessage('expense-message', 'Expense recorded successfully!', 'success');
-        }
-
-        function clearExpenseForm() {
-            document.getElementById('expense-date').value = new Date().toISOString().split('T')[0];
-            document.getElementById('expense-category').value = 'Seeds';
-            document.getElementById('expense-amount').value = '';
-            document.getElementById('expense-description').value = '';
-            document.getElementById('expense-message').innerHTML = '';
-        }
-
-        function loadExpenses() {
-            const tbody = document.getElementById('expenses-body');
-            if (db.expenses.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" class="empty-state">No expenses recorded yet. Add your first expense above!</td></tr>';
-                return;
-            }
-
-            tbody.innerHTML = db.expenses.map(expense => `
+          <div class="table-wrap">
+            <table>
+              <thead>
                 <tr>
-                    <td>${expense.id}</td>
-                    <td>${expense.date}</td>
-                    <td><span class="badge badge-warning">${expense.category}</span></td>
-                    <td>$${expense.amount.toFixed(2)}</td>
-                    <td>${expense.description}</td>
-                    <td>
-                        <button class="btn-danger" onclick="deleteExpense(${expense.id})" style="padding: 5px 10px; font-size: 12px;">Delete</button>
-                    </td>
+                  <th>ID</th>
+                  <th>Date</th>
+                  <th>Category</th>
+                  <th>Amount</th>
+                  <th>Description</th>
+                  <th>Action</th>
                 </tr>
-            `).join('');
-        }
+              </thead>
+              <tbody id="expensesTableBody"></tbody>
+            </table>
+          </div>
+        </section>
 
-        function deleteExpense(id) {
-            if (confirm('Are you sure you want to delete this expense?')) {
-                db.expenses = db.expenses.filter(e => e.id !== id);
-                saveData();
-                loadExpenses();
-                updateDashboard();
-                showMessage('expense-message', 'Expense deleted successfully!', 'success');
-            }
-        }
+        <section class="tab" id="reports">
+          <div class="reports-grid">
+            <div class="card">
+              <h3 class="section-title">Plants Report</h3>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Type</th>
+                      <th>Qty</th>
+                      <th>Status</th>
+                      <th>Area</th>
+                    </tr>
+                  </thead>
+                  <tbody id="reportPlantsBody"></tbody>
+                </table>
+              </div>
+            </div>
 
-        // Reports
-        function loadReports() {
-            loadReportPlants();
-            loadReportWorkers();
-            loadReportActivities();
-            loadReportExpenses();
-        }
+            <div class="card">
+              <h3 class="section-title">Workers Report</h3>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Contact</th>
+                      <th>Role</th>
+                      <th>Salary</th>
+                    </tr>
+                  </thead>
+                  <tbody id="reportWorkersBody"></tbody>
+                </table>
+              </div>
+            </div>
 
-        function loadReportPlants() {
-            const tbody = document.getElementById('report-plants-body');
-            if (db.plants.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" class="empty-state">No data</td></tr>';
-                return;
-            }
-            tbody.innerHTML = db.plants.map(p => `
-                <tr>
-                    <td>${p.name}</td>
-                    <td>${p.type}</td>
-                    <td>${p.quantity}</td>
-                    <td><span class="badge badge-info">${p.status}</span></td>
-                    <td>${p.area}</td>
-                </tr>
-            `).join('');
-        }
+            <div class="card">
+              <h3 class="section-title">Activities Report</h3>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>Description</th>
+                      <th>Worker</th>
+                    </tr>
+                  </thead>
+                  <tbody id="reportActivitiesBody"></tbody>
+                </table>
+              </div>
+            </div>
 
-        function loadReportWorkers() {
-            const tbody = document.getElementById('report-workers-body');
-            if (db.workers.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" class="empty-state">No data</td></tr>';
-                return;
-            }
-            tbody.innerHTML = db.workers.map(w => `
-                <tr>
-                    <td>${w.name}</td>
-                    <td>${w.contact}</td>
-                    <td>${w.role}</td>
-                    <td>$${w.salary.toFixed(2)}</td>
-                </tr>
-            `).join('');
-        }
+            <div class="card">
+              <h3 class="section-title">Expenses Report</h3>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>Category</th>
+                      <th>Amount</th>
+                      <th>Note</th>
+                    </tr>
+                  </thead>
+                  <tbody id="reportExpensesBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
 
-        function loadReportActivities() {
-            const tbody = document.getElementById('report-activities-body');
-            if (db.activities.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="3" class="empty-state">No data</td></tr>';
-                return;
-            }
-            tbody.innerHTML = db.activities.map(a => `
-                <tr>
-                    <td>${a.date}</td>
-                    <td>${a.description}</td>
-                    <td>${a.workerName}</td>
-                </tr>
-            `).join('');
-        }
+  <script>
+    const STORAGE_KEY = 'plantation-management-system-v1';
 
-        function loadReportExpenses() {
-            const tbody = document.getElementById('report-expenses-body');
-            if (db.expenses.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" class="empty-state">No data</td></tr>';
-                return;
-            }
-            tbody.innerHTML = db.expenses.map(e => `
-                <tr>
-                    <td>${e.date}</td>
-                    <td><span class="badge badge-warning">${e.category}</span></td>
-                    <td>$${e.amount.toFixed(2)}</td>
-                    <td>${e.description}</td>
-                </tr>
-            `).join('');
-        }
+    const db = {
+      plants: [],
+      workers: [],
+      activities: [],
+      expenses: [],
+      nextPlantId: 1,
+      nextWorkerId: 1,
+      nextActivityId: 1,
+      nextExpenseId: 1
+    };
 
-        // Dashboard
-        function updateDashboard() {
-            const totalPlants = db.plants.reduce((sum, p) => sum + p.quantity, 0);
-            const totalWorkers = db.workers.length;
-            const areas = new Set(db.plants.map(p => p.area)).size;
-            const totalExpenses = db.expenses.reduce((sum, e) => sum + e.amount, 0);
+    function loadData() {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (!saved) return;
 
-            document.getElementById('total-plants').textContent = totalPlants;
-            document.getElementById('total-workers').textContent = totalWorkers;
-            document.getElementById('total-areas').textContent = areas;
-            document.getElementById('total-expenses').textContent = '$' + totalExpenses.toFixed(2);
-        }
+      try {
+        const parsed = JSON.parse(saved);
+        Object.assign(db, parsed);
+      } catch (err) {
+        console.warn('Failed to parse stored data', err);
+      }
+    }
 
-        // Messages
-        function showMessage(elementId, message, type) {
-            const element = document.getElementById(elementId);
-            element.innerHTML = `<div class="message ${type}">${message}</div>`;
-            setTimeout(() => {
-                element.innerHTML = '';
-            }, 3000);
-        }
+    function saveData() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
+    }
 
-        // Initialize
-        document.addEventListener('DOMContentLoaded', () => {
-            loadData();
-            clearPlantForm();
-            clearWorkerForm();
-            clearActivityForm();
-            clearExpenseForm();
-            loadPlants();
-            loadWorkers();
-            loadActivities();
-            loadExpenses();
-            loadActivityWorkerCombo();
-            updateDashboard();
-        });
-    </script>
+    function setTodayInInputs() {
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('plantDate').value = today;
+      document.getElementById('activityDate').value = today;
+      document.getElementById('expenseDate').value = today;
+    }
+
+    function showMessage(id, text, type) {
+      const target = document.getElementById(id);
+      if (!target) return;
+      target.innerHTML = `<div class="message-box ${type}">${text}</div>`;
+      setTimeout(() => { target.innerHTML = ''; }, 2500);
+    }
+
+    function updateDashboard() {
+      const totalPlants = db.plants.reduce((sum, item) => sum + Number(item.quantity || 0), 0);
+      const totalWorkers = db.workers.length;
+      const totalAreas = new Set(db.plants.filter(p => p.area).map(p => p.area)).size;
+      const totalExpenses = db.expenses.reduce((sum, item) => sum + Number(item.amount || 0), 0);
+
+      document.getElementById('totalPlants').textContent = totalPlants;
+      document.getElementById('totalWorkers').textContent = totalWorkers;
+      document.getElementById('totalAreas').textContent = totalAreas;
+      document.getElementById('totalExpenses').textContent = '$' + totalExpenses.toFixed(2);
+    }
+
+    function renderPlants() {
+      const tbody = document.getElementById('plantsTableBody');
+      if (!db.plants.length) {
+        tbody.innerHTML = '<tr><td colspan="8" class="empty">No plants available. Add your first record.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = db.plants.map(item => `
+        <tr>
+          <td>${item.id}</td>
+          <td>${item.name}</td>
+          <td>${item.type}</td>
+          <td>${item.quantity}</td>
+          <td>${item.date || '-'}</td>
+          <td><span class="badge green">${item.status}</span></td>
+          <td>${item.area || '-'}</td>
+          <td><button class="btn btn-danger" type="button" onclick="deletePlant(${item.id})">Delete</button></td>
+        </tr>
+      `).join('');
+    }
+
+    function renderWorkers() {
+      const tbody = document.getElementById('workersTableBody');
+      if (!db.workers.length) {
+        tbody.innerHTML = '<tr><td colspan="6" class="empty">No workers available. Add your team.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = db.workers.map(item => `
+        <tr>
+          <td>${item.id}</td>
+          <td>${item.name}</td>
+          <td>${item.contact}</td>
+          <td>${item.role}</td>
+          <td>$${Number(item.salary || 0).toFixed(2)}</td>
+          <td><button class="btn btn-danger" type="button" onclick="deleteWorker(${item.id})">Delete</button></td>
+        </tr>
+      `).join('');
+    }
+
+    function renderActivities() {
+      const tbody = document.getElementById('activitiesTableBody');
+      if (!db.activities.length) {
+        tbody.innerHTML = '<tr><td colspan="5" class="empty">No activity recorded yet.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = db.activities.map(item => `
+        <tr>
+          <td>${item.id}</td>
+          <td>${item.date || '-'}</td>
+          <td>${item.description}</td>
+          <td>${item.workerName || '-'}</td>
+          <td><button class="btn btn-danger" type="button" onclick="deleteActivity(${item.id})">Delete</button></td>
+        </tr>
+      `).join('');
+    }
+
+    function renderExpenses() {
+      const tbody = document.getElementById('expensesTableBody');
+      if (!db.expenses.length) {
+        tbody.innerHTML = '<tr><td colspan="6" class="empty">No expenses recorded yet.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = db.expenses.map(item => `
+        <tr>
+          <td>${item.id}</td>
+          <td>${item.date || '-'}</td>
+          <td><span class="badge yellow">${item.category}</span></td>
+          <td>$${Number(item.amount || 0).toFixed(2)}</td>
+          <td>${item.description || '-'}</td>
+          <td><button class="btn btn-danger" type="button" onclick="deleteExpense(${item.id})">Delete</button></td>
+        </tr>
+      `).join('');
+    }
+
+    function renderReports() {
+      const reportPlants = document.getElementById('reportPlantsBody');
+      const reportWorkers = document.getElementById('reportWorkersBody');
+      const reportActivities = document.getElementById('reportActivitiesBody');
+      const reportExpenses = document.getElementById('reportExpensesBody');
+
+      reportPlants.innerHTML = db.plants.length
+        ? db.plants.map(item => `
+          <tr>
+            <td>${item.name}</td>
+            <td>${item.type}</td>
+            <td>${item.quantity}</td>
+            <td><span class="badge green">${item.status}</span></td>
+            <td>${item.area || '-'}</td>
+          </tr>
+        `).join('')
+        : '<tr><td colspan="5" class="empty">No plant data</td></tr>';
+
+      reportWorkers.innerHTML = db.workers.length
+        ? db.workers.map(item => `
+          <tr>
+            <td>${item.name}</td>
+            <td>${item.contact}</td>
+            <td>${item.role}</td>
+            <td>$${Number(item.salary || 0).toFixed(2)}</td>
+          </tr>
+        `).join('')
+        : '<tr><td colspan="4" class="empty">No worker data</td></tr>';
+
+      reportActivities.innerHTML = db.activities.length
+        ? db.activities.map(item => `
+          <tr>
+            <td>${item.date || '-'}</td>
+            <td>${item.description}</td>
+            <td>${item.workerName || '-'}</td>
+          </tr>
+        `).join('')
+        : '<tr><td colspan="3" class="empty">No activity data</td></tr>';
+
+      reportExpenses.innerHTML = db.expenses.length
+        ? db.expenses.map(item => `
+          <tr>
+            <td>${item.date || '-'}</td>
+            <td><span class="badge yellow">${item.category}</span></td>
+            <td>$${Number(item.amount || 0).toFixed(2)}</td>
+            <td>${item.description || '-'}</td>
+          </tr>
+        `).join('')
+        : '<tr><td colspan="4" class="empty">No expense data</td></tr>';
+    }
+
+    function refreshWorkerOptions() {
+      const select = document.getElementById('activityWorker');
+      select.innerHTML = '<option value="">Select a worker</option>' + db.workers.map(w => `<option value="${w.id}">${w.name}</option>`).join('');
+    }
+
+    function addPlant() {
+      const name = document.getElementById('plantName').value.trim();
+      const type = document.getElementById('plantType').value.trim();
+      const quantity = Number(document.getElementById('plantQuantity').value || 0);
+      const date = document.getElementById('plantDate').value;
+      const status = document.getElementById('plantStatus').value;
+      const area = document.getElementById('plantArea').value.trim();
+
+      if (!name || !type) {
+        showMessage('plantMessage', 'Plant name and type are required.', 'error');
+        return;
+      }
+
+      db.plants.push({
+        id: db.nextPlantId++,
+        name,
+        type,
+        quantity,
+        date,
+        status,
+        area
+      });
+
+      saveData();
+      renderPlants();
+      renderReports();
+      updateDashboard();
+      clearPlantForm();
+      showMessage('plantMessage', 'Plant recorded successfully.', 'success');
+    }
+
+    function clearPlantForm() {
+      document.getElementById('plantName').value = '';
+      document.getElementById('plantType').value = '';
+      document.getElementById('plantQuantity').value = '0';
+      document.getElementById('plantArea').value = '';
+      document.getElementById('plantStatus').value = 'Growing';
+      document.getElementById('plantDate').value = new Date().toISOString().split('T')[0];
+    }
+
+    function deletePlant(id) {
+      db.plants = db.plants.filter(p => p.id !== id);
+      saveData();
+      renderPlants();
+      renderReports();
+      updateDashboard();
+      showMessage('plantMessage', 'Plant deleted successfully.', 'success');
+    }
+
+    function addWorker() {
+      const name = document.getElementById('workerName').value.trim();
+      const contact = document.getElementById('workerContact').value.trim();
+      const role = document.getElementById('workerRole').value.trim();
+      const salary = Number(document.getElementById('workerSalary').value || 0);
+
+      if (!name || !contact) {
+        showMessage('workerMessage', 'Worker name and contact number are required.', 'error');
+        return;
+      }
+
+      db.workers.push({
+        id: db.nextWorkerId++,
+        name,
+        contact,
+        role,
+        salary
+      });
+
+      saveData();
+      renderWorkers();
+      renderReports();
+      updateDashboard();
+      refreshWorkerOptions();
+      clearWorkerForm();
+      showMessage('workerMessage', 'Worker added successfully.', 'success');
+    }
+
+    function clearWorkerForm() {
+      document.getElementById('workerName').value = '';
+      document.getElementById('workerContact').value = '';
+      document.getElementById('workerRole').value = '';
+      document.getElementById('workerSalary').value = '0';
+    }
+
+    function deleteWorker(id) {
+      db.workers = db.workers.filter(w => w.id !== id);
+      db.activities = db.activities.filter(a => a.workerId !== id);
+      saveData();
+      renderWorkers();
+      renderActivities();
+      renderReports();
+      updateDashboard();
+      refreshWorkerOptions();
+      showMessage('workerMessage', 'Worker deleted successfully.', 'success');
+    }
+
+    function addActivity() {
+      const date = document.getElementById('activityDate').value;
+      const workerId = Number(document.getElementById('activityWorker').value);
+      const description = document.getElementById('activityDescription').value.trim();
+
+      if (!date || !workerId || !description) {
+        showMessage('activityMessage', 'Please select a worker and enter a description.', 'error');
+        return;
+      }
+
+      const worker = db.workers.find(w => w.id === workerId);
+
+      db.activities.push({
+        id: db.nextActivityId++,
+        date,
+        workerId,
+        workerName: worker ? worker.name : 'Unassigned',
+        description
+      });
+
+      saveData();
+      renderActivities();
+      renderReports();
+      clearActivityForm();
+      showMessage('activityMessage', 'Activity recorded successfully.', 'success');
+    }
+
+    function clearActivityForm() {
+      document.getElementById('activityDate').value = new Date().toISOString().split('T')[0];
+      document.getElementById('activityDescription').value = '';
+      document.getElementById('activityWorker').value = '';
+    }
+
+    function deleteActivity(id) {
+      db.activities = db.activities.filter(a => a.id !== id);
+      saveData();
+      renderActivities();
+      renderReports();
+      showMessage('activityMessage', 'Activity deleted successfully.', 'success');
+    }
+
+    function addExpense() {
+      const date = document.getElementById('expenseDate').value;
+      const category = document.getElementById('expenseCategory').value;
+      const amount = Number(document.getElementById('expenseAmount').value || 0);
+      const description = document.getElementById('expenseDescription').value.trim();
+
+      if (!date || !category || amount <= 0) {
+        showMessage('expenseMessage', 'Please enter a valid date, category, and amount.', 'error');
+        return;
+      }
+
+      db.expenses.push({
+        id: db.nextExpenseId++,
+        date,
+        category,
+        amount,
+        description
+      });
+
+      saveData();
+      renderExpenses();
+      renderReports();
+      updateDashboard();
+      clearExpenseForm();
+      showMessage('expenseMessage', 'Expense recorded successfully.', 'success');
+    }
+
+    function clearExpenseForm() {
+      document.getElementById('expenseDate').value = new Date().toISOString().split('T')[0];
+      document.getElementById('expenseCategory').value = 'Seeds';
+      document.getElementById('expenseAmount').value = '0';
+      document.getElementById('expenseDescription').value = '';
+    }
+
+    function deleteExpense(id) {
+      db.expenses = db.expenses.filter(e => e.id !== id);
+      saveData();
+      renderExpenses();
+      renderReports();
+      updateDashboard();
+      showMessage('expenseMessage', 'Expense deleted successfully.', 'success');
+    }
+
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab').forEach(tab => tab.classList.toggle('active', tab.id === tabId));
+      document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.tab === tabId));
+
+      const titles = {
+        dashboard: 'Dashboard',
+        plants: 'Plants',
+        workers: 'Workers',
+        activities: 'Activities',
+        expenses: 'Expenses',
+        reports: 'Reports'
+      };
+      document.getElementById('pageTitle').textContent = titles[tabId] || 'Dashboard';
+    }
+
+    document.querySelectorAll('.nav-btn').forEach(btn => {
+      btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+    });
+
+    function init() {
+      loadData();
+      setTodayInInputs();
+      refreshWorkerOptions();
+      renderPlants();
+      renderWorkers();
+      renderActivities();
+      renderExpenses();
+      renderReports();
+      updateDashboard();
+    }
+
+    init();
+  </script>
 </body>
-</html>\n
+</html>
